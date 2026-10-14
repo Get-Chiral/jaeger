@@ -142,3 +142,21 @@ func TestInitFromViper_MultipleAuthMethods(t *testing.T) {
 		})
 	}
 }
+
+func TestInitFromViper_NonPositiveTimeout(t *testing.T) {
+	for _, arg := range []string{"--timeout=0", "--timeout=-5"} {
+		t.Run(arg, func(t *testing.T) {
+			v := viper.New()
+			c := &Config{}
+			command := cobra.Command{}
+			flags := &flag.FlagSet{}
+			c.AddFlags(flags)
+			command.PersistentFlags().AddGoFlagSet(flags)
+			v.BindPFlags(command.PersistentFlags())
+
+			require.NoError(t, command.ParseFlags([]string{arg}))
+			err := c.InitFromViper(v)
+			require.ErrorContains(t, err, "--timeout must be a positive number of seconds")
+		})
+	}
+}
