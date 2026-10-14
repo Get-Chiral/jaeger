@@ -6,6 +6,7 @@ package app
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -79,6 +80,9 @@ func (c *Config) InitFromViper(v *viper.Viper) error {
 		return err
 	}
 	c.TLSConfig = tlsCfg
+	if c.MasterNodeTimeoutSeconds <= 0 {
+		return fmt.Errorf("--%s must be a positive number of seconds, got %d", timeout, c.MasterNodeTimeoutSeconds)
+	}
 	return validateAuthFlags(c.Username, c.Password, c.TokenFilePath, c.APIKeyFilePath)
 }
 
